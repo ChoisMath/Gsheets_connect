@@ -106,11 +106,11 @@ def main():
         insert_index = approved_data[approved_data['일련번호'] == ''].index
         serials = data['일련번호']
         now_max_serial = np.max(serials[serials != ''])
-        # st.write(insert_index)
-        # st.write(now_max_serial)
+        st.success(insert_index)
+        st.success(now_max_serial)
 
-        for i in range(len(insert_index)):
-            sheet.update(range_name="K" + str(insert_index[i]+1), values=[[int(now_max_serial)+i+1]])
+        # for i in range(len(insert_index)):
+        #     sheet.update(range_name="K" + str(insert_index[i]+1), values=[[int(now_max_serial)+i+1]])
 
 
     filter = row3[2].button("검색")
