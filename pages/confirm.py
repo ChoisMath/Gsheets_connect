@@ -104,13 +104,14 @@ def main():
         data= data_load()
         approved_data = approval_filter(data)
         insert_index = approved_data[approved_data['일련번호'] == ''].index
-        serials = data['일련번호']
-        now_max_serial = np.max(serials[serials != ''])
-        st.success(insert_index)
-        st.success(now_max_serial)
+        serials = data['일련번호'].values.tolist()
+        now_max_serial = np.max([int(x) if x!='' else 0 for x in serials])
+        # st.success(insert_index)
+        # st.success(serials)
+        # st.success(now_max_serial)
 
-        # for i in range(len(insert_index)):
-        #     sheet.update(range_name="K" + str(insert_index[i]+1), values=[[int(now_max_serial)+i+1]])
+        for i in range(len(insert_index)):
+            sheet.update(range_name="K" + str(insert_index[i]+1), values=[[int(now_max_serial)+i+1]])
 
 
     filter = row3[2].button("검색")
@@ -123,7 +124,7 @@ def main():
                                            student_name=student_name)
         st.dataframe(filtered_data[["학교명", "일련번호", "구분","학년", "반", "번호", "이름", "봉사시간"]], use_container_width=True)
 
-    st.write("ver.2024.04.29.오류1")
+    st.write("ver.2024.04.29. 2:36")
 
 if __name__ == '__main__':
     main()
