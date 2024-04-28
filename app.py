@@ -11,9 +11,9 @@ from gspread_formatting import DataValidationRule, BooleanCondition, set_data_va
 credental_json = {
     "type": "service_account",
     "project_id": "chois-python-connect",
-    "private_key_id": os.getenv("GOOGLE_PRIVATE_ID"),
-    "private_key": os.getenv("GOOGLE_PRIVATE_KEY").replace('\\n', '\n'),
-    "client_email": os.getenv("GOOGLE_CLIENT_EMAIL"),
+    "private_key_id": st.secrets["private_key_id"],
+    "private_key": st.secrets["private_key"],
+    "client_email": st.secrets["client_email"],
     "client_id": "116464278440047112678",
     "auth_uri": "https://accounts.google.com/o/oauth2/auth",
     "token_uri": "https://oauth2.googleapis.com/token",
@@ -54,7 +54,7 @@ def main():
     row1= st.columns(5)
     school_name = row1[0].text_input("학교명")   #selectbox로 변경
     teacher_stu = row1[1].selectbox(label = "구분",options = ["교사","참여학생","체험학생"], key="teacher_stu" )
-    grade_num = row1[2].number_input("학년", min_value=0, max_value=6, value=0, placeholder="선생님은 o학년")
+    grade_num = row1[2].number_input("학년", min_value=0, max_value=6, value=0)
     student_ban = row1[3].number_input("반", step=1, min_value=0, max_value=15, value=0, placeholder="선생님은 o반")
     student_id = row1[4].number_input("번호", step=1, min_value=0, max_value=40, value=0, placeholder="선생님은 o번")
 

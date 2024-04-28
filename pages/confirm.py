@@ -11,9 +11,9 @@ from gspread_formatting import DataValidationRule, BooleanCondition, set_data_va
 credental_json = {
     "type": "service_account",
     "project_id": "chois-python-connect",
-    "private_key_id": os.getenv("GOOGLE_PRIVATE_ID"),
-    "private_key": os.getenv("GOOGLE_PRIVATE_KEY").replace('\\n', '\n'),
-    "client_email": os.getenv("GOOGLE_CLIENT_EMAIL"),
+    "private_key_id": st.secrets["private_key_id"],
+    "private_key": st.secrets["private_key"],
+    "client_email": st.secrets["client_email"],
     "client_id": "116464278440047112678",
     "auth_uri": "https://accounts.google.com/o/oauth2/auth",
     "token_uri": "https://oauth2.googleapis.com/token",
