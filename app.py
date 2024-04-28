@@ -2,16 +2,34 @@ import pandas as pd
 import streamlit as st
 import gspread as gc
 import numpy as np
-from oauth2client.service_account import ServiceAccountCredentials
-import re
+import os
+from google.oauth2 import service_account
 import datetime, json
 from gspread_formatting import DataValidationRule, BooleanCondition, set_data_validation_for_cell_range
 
+# 서비스 계정 정보
+credental_json = {
+    "type": "service_account",
+    "project_id": "chois-python-connect",
+    "private_key_id": os.getenv("GOOGLE_PRIVATE_ID"),
+    "private_key": os.getenv("GOOGLE_PRIVATE_KEY").replace('\\n', '\n'),
+    "client_email": os.getenv("GOOGLE_CLIENT_EMAIL"),
+    "client_id": "116464278440047112678",
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+    "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/chois-python-connect%40chois-python-connect.iam.gserviceaccount.com",
+}
 
+# Google Sheets 및 Drive API에 액세스할 수 있는 권한 부여
+scope = [
+    'https://spreadsheets.google.com/feeds',
+    'https://www.googleapis.com/auth/drive'
+]
 
-# Google Sheets API에 액세스할 수 있는 권한 부여
-scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
-credentials = ServiceAccountCredentials.from_json_keyfile_name('.\.streamlit\chois-python-connect.json', scope) # 'credentials.json'은 본인의 서비스 계정 키 파일입니다.
+credentials = service_account.Credentials.from_service_account_info(credental_json, scopes=scope)
+
+# gspread 클라이언트 초기화
 client = gc.authorize(credentials)
 
 # 스프레드시트 열기
