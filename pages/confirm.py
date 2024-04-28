@@ -99,13 +99,13 @@ def main():
         student_id = None
 
     row3 = st.columns([0.7,1.2,0.5])
-    set_serial = row3[0].button("일련번호 등록")
+    set_serial = row3[0].button("일련번호 입력")
     if set_serial:
         data= data_load()
         approved_data = approval_filter(data)
-        insert_index = approved_data[approved_data['일련번호']==''].index
-        serials = approved_data['일련번호']
-        now_max_serial = np.max(serials[serials!=''])
+        insert_index = approved_data[approved_data['일련번호'] == ''].index
+        serials = data['일련번호']
+        now_max_serial = np.max(serials[serials != ''])
         # st.write(insert_index)
         # st.write(now_max_serial)
 
@@ -121,7 +121,7 @@ def main():
                                            student_ban=student_ban,
                                            student_id=student_id,
                                            student_name=student_name)
-        st.dataframe(filtered_data, use_container_width=True)
+        st.dataframe(filtered_data[["학교명", "일련번호", "구분","학년", "반", "번호", "이름", "봉사시간"]], use_container_width=True)
 
 if __name__ == '__main__':
     main()
