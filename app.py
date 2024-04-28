@@ -5,6 +5,8 @@ import numpy as np
 from oauth2client.service_account import ServiceAccountCredentials
 import re
 import datetime, json
+from gspread_formatting import DataValidationRule, BooleanCondition, set_data_validation_for_cell_range
+
 
 
 # Google Sheets API에 액세스할 수 있는 권한 부여
@@ -23,7 +25,11 @@ def data_input(input_list):
     all_data = np.array(sheet.get_all_values())
     last_row = all_data.shape[0]+1
     message = " 학교명: {0}\n 구분: {1}\n 학번: {2}학년 {3}반 {4}번\n 이름: {5}\n 생년월일: {6}\n 행사복: {7}사이즈\n 봉사시간: {8}시간"
-    sheet.update(range_name="A" + str(last_row), values=input_list)
+    sheet.update(range_name="B" + str(last_row), values=input_list)
+    validation_rule = DataValidationRule(
+        BooleanCondition('BOOLEAN', ['TRUE', 'FALSE']),  # condition'type' and 'values', defaulting to TRUE/FALSE
+        showCustomUi=True)
+    set_data_validation_for_cell_range(sheet,"A" + str(last_row), validation_rule)  # inserting checkbox
 
 def main():
     st.title("2024 대수페 신청사이트")
@@ -40,7 +46,7 @@ def main():
     birthdate = row2[1].date_input("생년월일", datetime.date(2007, 1, 1))
     json_birth = json.dumps(birthdate, default=str).strip("\"")
     size = row2[2].selectbox(label="행사복 사이즈", options = ["xxxL", "xxL", "xL", "L", "M", "S", "xS", "xxS", "xxxS", "해당없음"])
-    volunteer = row2[3].number_input(label="봉사시간", step=1, min_value=1, max_value=8)
+    volunteer = row2[3].number_input(label="봉사시간", step=1, min_value=0, max_value=8)
 
     input_list = [[school_name, teacher_stu, grade_num, student_ban, student_id, student_name, json_birth, size, volunteer]]
 
