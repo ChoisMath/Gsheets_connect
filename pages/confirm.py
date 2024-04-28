@@ -123,5 +123,7 @@ def main():
                                            student_name=student_name)
         st.dataframe(filtered_data[["학교명", "일련번호", "구분","학년", "반", "번호", "이름", "봉사시간"]], use_container_width=True)
 
+    st.write("ver.2024.04.29.오류1")
+
 if __name__ == '__main__':
     main()
