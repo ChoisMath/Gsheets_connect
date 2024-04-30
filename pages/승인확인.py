@@ -6,70 +6,8 @@ import os
 from google.oauth2 import service_account
 import datetime, json
 from gspread_formatting import DataValidationRule, BooleanCondition, set_data_validation_for_cell_range
+from functions import data_load, approval_filter, conditional_filter
 
-# 서비스 계정 정보
-credental_json = {
-    "type": "service_account",
-    "project_id": "chois-python-connect",
-    "private_key_id": st.secrets["private_key_id"],
-    "private_key": st.secrets["private_key"],
-    "client_email": st.secrets["client_email"],
-    "client_id": "116464278440047112678",
-    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-    "token_uri": "https://oauth2.googleapis.com/token",
-    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-    "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/chois-python-connect%40chois-python-connect.iam.gserviceaccount.com",
-}
-
-# Google Sheets 및 Drive API에 액세스할 수 있는 권한 부여
-scope = [
-    'https://spreadsheets.google.com/feeds',
-    'https://www.googleapis.com/auth/drive'
-]
-
-credentials = service_account.Credentials.from_service_account_info(credental_json, scopes=scope)
-
-# gspread 클라이언트 초기화
-client = gc.authorize(credentials)
-
-# 스프레드시트 열기
-spreadsheet = client.open_by_key('1DwMKa9x9mHZnKUFgylhgQahEoFaTmfHCr4yeCVNVpT4')
-
-# 시트 선택
-sheet = spreadsheet.worksheet('sheet1') # 'Sheet1'은 열고자 하는 시트의 이름입니다.
-school_sheet = spreadsheet.worksheet('학교')
-
-
-def data_load():
-    all_data = pd.DataFrame(sheet.get_all_values())
-    all_data.columns = list(all_data.iloc[0])
-    all_data = all_data.iloc[1:]
-    return all_data
-
-def approval_filter(data):
-    data = data.dropna(axis=0, how='any')
-    data = data[data['승인']=="TRUE"]
-    return data
-
-def conditional_filter(data,
-                       school_name = None,
-                       grade_num = None,
-                       student_ban = None,
-                       student_id = None,
-                       student_name =None):
-    filtered_data = data
-    if school_name is not None:
-        filtered_data = filtered_data[filtered_data["학교명"]==school_name]
-    if grade_num is not None:
-        filtered_data = filtered_data[filtered_data['학년']==str(grade_num)]
-    if student_ban is not None:
-        filtered_data = filtered_data[filtered_data['반']==str(student_ban)]
-    if student_id is not None:
-        filtered_data = filtered_data[filtered_data['번호']==str(student_id)]
-    if student_name is not None:
-        filtered_data = filtered_data[filtered_data['이름']==student_name]
-
-    return filtered_data
 
 def main():
     st.subheader('2024. 대구수학페스티벌 참가자 확인')
