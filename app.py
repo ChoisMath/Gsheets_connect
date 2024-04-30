@@ -1,72 +1,25 @@
-import pandas as pd
+
 import streamlit as st
-import gspread as gc
-import numpy as np
-import os
-from google.oauth2 import service_account
+from functions import data_input
 import datetime, json
-from gspread_formatting import DataValidationRule, BooleanCondition, set_data_validation_for_cell_range
 
-# 서비스 계정 정보
-credental_json = {
-    "type": "service_account",
-    "project_id": "chois-python-connect",
-    "private_key_id": st.secrets["private_key_id"],
-    "private_key": st.secrets["private_key"],
-    "client_email": st.secrets["client_email"],
-    "client_id": "116464278440047112678",
-    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-    "token_uri": "https://oauth2.googleapis.com/token",
-    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-    "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/chois-python-connect%40chois-python-connect.iam.gserviceaccount.com",
-}
-
-# Google Sheets 및 Drive API에 액세스할 수 있는 권한 부여
-scope = [
-    'https://spreadsheets.google.com/feeds',
-    'https://www.googleapis.com/auth/drive'
-]
-
-credentials = service_account.Credentials.from_service_account_info(credental_json, scopes=scope)
-
-# gspread 클라이언트 초기화
-client = gc.authorize(credentials)
-
-# 스프레드시트 열기
-spreadsheet = client.open_by_key('1DwMKa9x9mHZnKUFgylhgQahEoFaTmfHCr4yeCVNVpT4')
-
-# 시트 선택
-sheet = spreadsheet.worksheet('sheet1') # 'Sheet1'은 열고자 하는 시트의 이름입니다.
-school_sheet = spreadsheet.worksheet('학교')
-
-def data_input(input_list):
-    all_data = np.array(sheet.get_all_values())
-    last_row = all_data.shape[0]+1
-    message = " 학교명: {0}\n 구분: {1}\n 학번: {2}학년 {3}반 {4}번\n 이름: {5}\n 생년월일: {6}\n 행사복: {7}사이즈\n 봉사시간: {8}시간"
-    sheet.update(range_name="B" + str(last_row), values=input_list)
-    validation_rule = DataValidationRule(
-        BooleanCondition('BOOLEAN', ['TRUE', 'FALSE']),  # condition'type' and 'values', defaulting to TRUE/FALSE
-        showCustomUi=True)
-    set_data_validation_for_cell_range(sheet,"A" + str(last_row), validation_rule)  # inserting checkbox
 
 def main():
     st.title("2024 대수페 신청사이트")
-    row1= st.columns(5)
+    row1= st.columns(4)
     school_name = row1[0].text_input("학교명")   #selectbox로 변경
-    teacher_stu = row1[1].selectbox(label = "구분",options = ["교사","참여학생","체험학생"], key="teacher_stu" )
-    grade_num = row1[2].number_input("학년", min_value=0, max_value=6, value=0)
-    student_ban = row1[3].number_input("반", step=1, min_value=0, max_value=15, value=0, placeholder="선생님은 o반")
-    student_id = row1[4].number_input("번호", step=1, min_value=0, max_value=40, value=0, placeholder="선생님은 o번")
+    grade_num = row1[1].number_input("학년", min_value=0, max_value=6, value=0)
+    student_ban = row1[2].number_input("반", step=1, min_value=0, max_value=15, value=0, placeholder="선생님은 o반")
+    student_id = row1[3].number_input("번호", step=1, min_value=0, max_value=40, value=0, placeholder="선생님은 o번")
 
 
-    row2 = st.columns(4)
+    row2 = st.columns(2)
     student_name = row2[0].text_input("이름")
     birthdate = row2[1].date_input("생년월일", datetime.date(2007, 1, 1))
     json_birth = json.dumps(birthdate, default=str).strip("\"")
-    size = row2[2].selectbox(label="행사복 사이즈", options = ["xxxL", "xxL", "xL", "L", "M", "S", "xS", "xxS", "xxxS", "해당없음"])
-    volunteer = row2[3].number_input(label="봉사시간", step=1, min_value=0, max_value=8)
 
-    input_list = [[school_name, teacher_stu, grade_num, student_ban, student_id, student_name, json_birth, size, volunteer]]
+
+    input_list = [[school_name, grade_num, student_ban, student_id, student_name, json_birth, ]]
 
     explain_toggle = st.toggle("항목별 설명")
     if explain_toggle:
@@ -86,7 +39,6 @@ def main():
     submit = st.button("모든 정보를 정확히 입력하였습니까? 오류가 있을 경우 확인서가 발급되지 않을 수 있습니다.\n 저장하시겠습니까? ")
     if submit:
         data_input(input_list)
-        st.success("{0} {1}학년 {2}반 {3}번 {4}학생의 정보가 저장되었습니다.".format(input_list[0][0], input_list[0][2], input_list[0][3], input_list[0][4], input_list[0][5]))
     
 
 
