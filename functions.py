@@ -92,4 +92,4 @@ def input_serial():
     # st.success(now_max_serial)
 
     for i in range(len(insert_index)):
-        sheet.update(range_name="K" + str(insert_index[i] + 1), values=[[int(now_max_serial) + i + 1]])
+        sheet.update(range_name="H" + str(insert_index[i] + 1), values=[[int(now_max_serial) + i + 1]])

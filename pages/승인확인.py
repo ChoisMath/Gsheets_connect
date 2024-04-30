@@ -46,7 +46,7 @@ def main():
                                            student_ban=student_ban,
                                            student_id=student_id,
                                            student_name=student_name)
-        st.dataframe(filtered_data[["학교명", "일련번호", "구분","학년", "반", "번호", "이름"]], use_container_width=True)
+        st.dataframe(filtered_data[["학교명", "발급번호","학년", "반", "번호", "이름"]], use_container_width=True)
 
     st.write("ver.2024.04.29. 2:36")
 
