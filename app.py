@@ -5,7 +5,7 @@ import datetime, json
 
 
 def main():
-    st.title("2024 대수페 신청사이트")
+    st.title("2024 대수페 체험활동 승인신청")
     row1= st.columns(4)
     school_name = row1[0].text_input("학교명")   #selectbox로 변경
     grade_num = row1[1].number_input("학년", min_value=0, max_value=6, value=0)
