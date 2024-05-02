@@ -9,7 +9,7 @@ from googleapiclient.http import MediaIoBaseUpload
 from google.oauth2.service_account import Credentials
 from io import BytesIO
 import tempfile
-
+import time
 
 # 서비스 계정 정보
 credental_json = {
@@ -38,47 +38,16 @@ credentials = service_account.Credentials.from_service_account_info(credental_js
 # gspread 클라이언트 초기화
 client = gc.authorize(credentials)
 
-# 딕셔너리를 사용하여 Credentials 객체 생성
-credentials2 = Credentials.from_service_account_info(credental_json, scopes=['https://www.googleapis.com/auth/drive'])
-
 # Google Drive 서비스 객체 생성
-service = build('drive', 'v3', credentials=credentials2)
+service = build('drive', 'v3', credentials=credentials)
 
-def data_upload_file():
-    # 파일 업로더
-    uploaded_file = st.file_uploader("파일을 선택하세요", type=['txt', 'pdf', 'png', 'jpg', 'jpeg', 'csv',"xls", "xlsx"])
-
-    # 딕셔너리를 사용하여 Credentials 객체 생성
-    credentials = Credentials.from_service_account_info(credental_json,
-                                                        scopes=['https://www.googleapis.com/auth/drive'])
-
-    # Google Drive 서비스 객체 생성
-    service = build('drive', 'v3', credentials=credentials)
-
-    if uploaded_file is not None:
-        # 파일을 임시 디렉토리에 저장
-        with tempfile.NamedTemporaryFile(delete=False, suffix='_' + uploaded_file.name) as tmp_file:
-            tmp_file.write(uploaded_file.getvalue())
-            file_path = tmp_file.name
-
-        # 파일 메타데이터 생성
-        file_metadata = {'name': uploaded_file.name, 'parents': ["1hDFC1bc9MNMn5U3XcBcAh-LrVwNpO8Nt"]}
-
-        # 파일 콘텐츠를 메모리에서 읽기
-        file_stream = BytesIO(uploaded_file.getvalue())
-        media = MediaIoBaseUpload(file_stream, mimetype=uploaded_file.type)
-
-        # 파일 업로드 실행
-        try:
-            file = service.files().create(body=file_metadata, media_body=media, fields='id').execute()
-            st.success(f'파일이 성공적으로 업로드 되었습니다. 파일 ID: {file["id"]}')
-        except Exception as e:
-            st.error(f'파일 업로드 실패: {e}')
 
 
 
 # 스프레드시트 열기
-spreadsheet = client.open_by_key('1DwMKa9x9mHZnKUFgylhgQahEoFaTmfHCr4yeCVNVpT4')
+#API메일로 해당 스프레드시트 공유설정에 '편집자'권한으로 설정하기
+using_spreadsheet_id = '1DwMKa9x9mHZnKUFgylhgQahEoFaTmfHCr4yeCVNVpT4'
+spreadsheet = client.open_by_key(using_spreadsheet_id)
 
 # 시트 선택
 sheet = spreadsheet.worksheet('sheet1') # 'Sheet1'은 열고자 하는 시트의 이름입니다.
@@ -144,3 +113,68 @@ def input_serial():
 
     for i in range(len(insert_index)):
         sheet.update(range_name="H" + str(insert_index[i] + 1), values=[[int(now_max_serial) + i + 1]])
+
+#API메일로 해당폴더 공유설정에 '편집자'권한으로 설정하기
+using_folder_id = "1hDFC1bc9MNMn5U3XcBcAh-LrVwNpO8Nt"
+
+def data_upload_file():
+    # 파일 업로더
+    uploaded_file = st.file_uploader("파일을 선택하세요", type=["pdf", "csv", "xls", "xlsx", "hwp", "hwpx"])
+
+    cols = st.columns([0.5,1,0.5])
+    upload_btn = cols[0].button("업로드")
+    file_list_call = cols[2].button("제출목록")
+
+    file_names, file_ids = file_name_id_list()
+    if uploaded_file is not None and upload_btn:
+
+        if uploaded_file.name in file_names:
+            index_list = file_names.index(uploaded_file.name)
+            file_id = file_ids[index_list]
+            service.files().delete(fileId=file_id).execute()
+
+        # 파일을 임시 디렉토리에 저장
+        with tempfile.NamedTemporaryFile(delete=False, suffix='_' + uploaded_file.name) as tmp_file:
+            tmp_file.write(uploaded_file.getvalue())
+            file_path = tmp_file.name
+
+        # 파일 메타데이터 생성
+        file_metadata = {'name': uploaded_file.name, 'parents': [using_folder_id]}
+
+        # 파일 콘텐츠를 메모리에서 읽기
+        file_stream = BytesIO(uploaded_file.getvalue())
+        media = MediaIoBaseUpload(file_stream, mimetype=uploaded_file.type)
+
+        # 파일 업로드 실행
+        try:
+            file = service.files().create(body=file_metadata, media_body=media, fields='id, name').execute()
+            st.success(f'파일이 성공적으로 업로드 되었습니다. 파일 이름: {file["name"]}')
+
+        except Exception as e:
+            st.error(f'파일 업로드 실패: {e}')
+
+
+    else:
+        st.warning('[업로드]를 눌러 파일을 올리고, [제출목록]을 눌러 제출여부를 확인해 주세요.')
+
+    if file_list_call:
+        query = f"'{using_folder_id}' in parents"
+        results = service.files().list(q=query, fields="files(id, name, createdTime)").execute()
+        items = results.get('files', [])
+        # 파일 목록 출력
+        if not items:
+            st.warning('No files found.')
+        else:
+            df = pd.DataFrame(items)
+            sorted_df = df.sort_values(by='createdTime', ascending=False)
+            st.dataframe(sorted_df[['name', 'createdTime']])
+
+def file_name_id_list():
+    query = f"'{using_folder_id}' in parents"
+    results = service.files().list(q=query, fields="files(id, name, createdTime)").execute()
+    items = results.get('files', [])
+    file_names = pd.DataFrame(items)['name'].tolist()
+    file_ids = pd.DataFrame(items)['id'].tolist()
+    return file_names, file_ids
+
+

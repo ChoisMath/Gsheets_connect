@@ -1,6 +1,4 @@
-import pandas as pd
 import streamlit as st
-import gspread as gc
 import numpy as np
 from functions import data_load, approval_filter, conditional_filter, input_serial
 
