@@ -48,7 +48,7 @@ def main():
                                            student_name=student_name)
         st.dataframe(filtered_data[["학교명", "발급번호","학년", "반", "번호", "이름"]], use_container_width=True)
 
-    st.write("ver.2024.04.29. 2:36")
+    st.write("ver.2024.05.02. 2:36")
 
 if __name__ == '__main__':
     main()

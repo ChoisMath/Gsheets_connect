@@ -42,12 +42,16 @@ def data_input(input_list):
     last_row = all_data.shape[0]+1
     message = """{0} {1}학년 {2}반 {3}번 {4}학생의 정보가 저장되었습니다.  
      대구과학고등학교 본관 1층 로비로 가서 체험활동확인서를 제출하고 승인 받으세요."""
-    sheet.update(range_name="B" + str(last_row), values=input_list)
-    validation_rule = DataValidationRule(
-        BooleanCondition('BOOLEAN', ['TRUE', 'FALSE']),  # condition'type' and 'values', defaulting to TRUE/FALSE
-        showCustomUi=True)
-    set_data_validation_for_cell_range(sheet,"A" + str(last_row), validation_rule)  # inserting checkbox
-    st.success(message.format(input_list[0][0], input_list[0][2], input_list[0][3], input_list[0][4], input_list[0][5]))
+    if input_list[0][4] == "":
+        st.warning("학생의 이름을 입력하지 않았습니다. 입력되지 않습니다.")
+    else:
+        sheet.update(range_name="B" + str(last_row), values=input_list)
+        validation_rule = DataValidationRule(
+            BooleanCondition('BOOLEAN', ['TRUE', 'FALSE']),  # condition'type' and 'values', defaulting to TRUE/FALSE
+            showCustomUi=True)
+        set_data_validation_for_cell_range(sheet,"A" + str(last_row), validation_rule)  # inserting checkbox
+        sheet.update_cell(last_row,9, value="=\"Daugu-2024-\"&text(H"+str(last_row)+",\"00#\")")
+        st.success(message.format(input_list[0][0], input_list[0][2], input_list[0][3], input_list[0][4], input_list[0][5]))
 
 
 def data_load():
