@@ -14,15 +14,15 @@ def main():
     st.title('Google Drive 파일 업로더')
 
 
+    # 파일 업로더
+    uploaded_file = st.file_uploader("파일을 선택하세요", type=['txt', 'pdf', 'png', 'jpg', 'jpeg', 'csv',"xls", "xlsx"])
+
     # 딕셔너리를 사용하여 Credentials 객체 생성
     credentials = Credentials.from_service_account_info(functions.credental_json,
                                                         scopes=['https://www.googleapis.com/auth/drive'])
 
     # Google Drive 서비스 객체 생성
     service = build('drive', 'v3', credentials=credentials)
-
-    # 파일 업로더
-    uploaded_file = st.file_uploader("파일을 선택하세요", type=['txt', 'pdf', 'png', 'jpg', 'jpeg', 'csv',"xls", "xlsx"])
 
     if uploaded_file is not None:
         # 파일을 임시 디렉토리에 저장
