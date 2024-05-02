@@ -5,8 +5,10 @@ import numpy as np
 from google.oauth2 import service_account
 from gspread_formatting import DataValidationRule, BooleanCondition, set_data_validation_for_cell_range
 from googleapiclient.discovery import build
-from googleapiclient.http import MediaFileUpload
+from googleapiclient.http import MediaIoBaseUpload
 from google.oauth2.service_account import Credentials
+from io import BytesIO
+import tempfile
 
 
 # 서비스 계정 정보
@@ -42,18 +44,36 @@ credentials2 = Credentials.from_service_account_info(credental_json, scopes=['ht
 # Google Drive 서비스 객체 생성
 service = build('drive', 'v3', credentials=credentials2)
 
-def upload_file(file_path, file_name, mime_type):
-    """
-    Google Drive에 파일을 업로드하는 함수
-    Args:
-    file_path (str): 업로드할 파일의 경로
-    file_name (str): Google Drive에 저장될 파일 이름
-    mime_type (str): 파일의 MIME 타입
-    """
-    file_metadata = {'name': file_name}
-    media = MediaFileUpload(file_path, mimetype=mime_type)
-    file = service.files().create(body=file_metadata, media_body=media, fields='id').execute()
-    print(f"File ID: {file['id']}")
+def data_upload_file():
+    # 파일 업로더
+    uploaded_file = st.file_uploader("파일을 선택하세요", type=['txt', 'pdf', 'png', 'jpg', 'jpeg', 'csv',"xls", "xlsx"])
+
+    # 딕셔너리를 사용하여 Credentials 객체 생성
+    credentials = Credentials.from_service_account_info(credental_json,
+                                                        scopes=['https://www.googleapis.com/auth/drive'])
+
+    # Google Drive 서비스 객체 생성
+    service = build('drive', 'v3', credentials=credentials)
+
+    if uploaded_file is not None:
+        # 파일을 임시 디렉토리에 저장
+        with tempfile.NamedTemporaryFile(delete=False, suffix='_' + uploaded_file.name) as tmp_file:
+            tmp_file.write(uploaded_file.getvalue())
+            file_path = tmp_file.name
+
+        # 파일 메타데이터 생성
+        file_metadata = {'name': uploaded_file.name, 'parents': ["1hDFC1bc9MNMn5U3XcBcAh-LrVwNpO8Nt"]}
+
+        # 파일 콘텐츠를 메모리에서 읽기
+        file_stream = BytesIO(uploaded_file.getvalue())
+        media = MediaIoBaseUpload(file_stream, mimetype=uploaded_file.type)
+
+        # 파일 업로드 실행
+        try:
+            file = service.files().create(body=file_metadata, media_body=media, fields='id').execute()
+            st.success(f'파일이 성공적으로 업로드 되었습니다. 파일 ID: {file["id"]}')
+        except Exception as e:
+            st.error(f'파일 업로드 실패: {e}')
 
 
 
