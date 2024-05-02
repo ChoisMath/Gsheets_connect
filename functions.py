@@ -4,6 +4,10 @@ import gspread as gc
 import numpy as np
 from google.oauth2 import service_account
 from gspread_formatting import DataValidationRule, BooleanCondition, set_data_validation_for_cell_range
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaFileUpload
+from google.oauth2.service_account import Credentials
+
 
 # 서비스 계정 정보
 credental_json = {
@@ -19,16 +23,39 @@ credental_json = {
     "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/chois-python-connect%40chois-python-connect.iam.gserviceaccount.com",
 }
 
+
 # Google Sheets 및 Drive API에 액세스할 수 있는 권한 부여
 scope = [
     'https://spreadsheets.google.com/feeds',
-    'https://www.googleapis.com/auth/drive'
+    'https://www.googleapis.com/auth/drive',
+    'https://www.googleapis.com/auth/drive.file'
 ]
 
 credentials = service_account.Credentials.from_service_account_info(credental_json, scopes=scope)
 
 # gspread 클라이언트 초기화
 client = gc.authorize(credentials)
+
+# 딕셔너리를 사용하여 Credentials 객체 생성
+credentials2 = Credentials.from_service_account_info(credental_json, scopes=['https://www.googleapis.com/auth/drive'])
+
+# Google Drive 서비스 객체 생성
+service = build('drive', 'v3', credentials=credentials2)
+
+def upload_file(file_path, file_name, mime_type):
+    """
+    Google Drive에 파일을 업로드하는 함수
+    Args:
+    file_path (str): 업로드할 파일의 경로
+    file_name (str): Google Drive에 저장될 파일 이름
+    mime_type (str): 파일의 MIME 타입
+    """
+    file_metadata = {'name': file_name}
+    media = MediaFileUpload(file_path, mimetype=mime_type)
+    file = service.files().create(body=file_metadata, media_body=media, fields='id').execute()
+    print(f"File ID: {file['id']}")
+
+
 
 # 스프레드시트 열기
 spreadsheet = client.open_by_key('1DwMKa9x9mHZnKUFgylhgQahEoFaTmfHCr4yeCVNVpT4')
