@@ -120,10 +120,10 @@ using_folder_id = "1hDFC1bc9MNMn5U3XcBcAh-LrVwNpO8Nt"
 def data_upload_file():
     # 파일 업로더
 
+    uploaded_file = st.file_uploader("파일을 선택하세요", type=["pdf", "csv", "xls", "xlsx", "hwp", "hwpx"])
     cols = st.columns([0.5, 1, 0.5])
     upload_btn = cols[0].button("업로드")
     file_list_call = cols[2].button("제출목록")
-    uploaded_file = st.file_uploader("파일을 선택하세요", type=["pdf", "csv", "xls", "xlsx", "hwp", "hwpx"])
 
 
     file_names, file_ids = file_name_id_list()
