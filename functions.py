@@ -124,8 +124,6 @@ def data_upload_file():
     file_list_call = cols[2].button("제출목록")
     uploaded_file = st.file_uploader("파일을 선택하세요", type=["pdf", "csv", "xls", "xlsx", "hwp", "hwpx"])
 
-
-
     file_names, file_ids = file_name_id_list()
     if uploaded_file is not None and upload_btn:
 
