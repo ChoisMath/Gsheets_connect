@@ -1,6 +1,6 @@
 import streamlit as st
-from functions import data_upload_file
 
+from functions import data_upload_file
 
 
 # Streamlit 앱 설정
