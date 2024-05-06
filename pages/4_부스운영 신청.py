@@ -82,7 +82,7 @@ def main():
     teacher_1, teacher_1_cp, teacher_1_e_mail = teacher_input(1)
     teacher_2, teacher_2_cp, teacher_2_e_mail = teacher_input(2)
 
-    stuffs = st.text_input(label = "필요물품", placeholder="부스운영에 필요한 물품, 예산구입물품 제외")
+    stuffs = st.text_area(label = "필요물품 및 부스운영 시 고려할 점", placeholder="부스운영에 필요한 물품과 부스장소 선택시 고려해야 할 사항에 대해 기록하여 주세요. 모든 사항을 만족해 드릴 순 없어도 최대한 고려하겠습니다. 신청 예산을 통한 구입물품은 기록하지 않으셔도 됩니다. (신청서에 작성함)")
     budget = st.number_input(label = "신청예산(₩)", min_value = 500000, max_value =1000000, step = 10000)
 
     input_list = [school_level+school_level_etc,
