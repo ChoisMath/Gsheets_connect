@@ -52,6 +52,7 @@ spreadsheet = client.open_by_key(using_spreadsheet_id)
 # 시트 선택
 sheet = spreadsheet.worksheet('체험활동') # 'Sheet1'은 열고자 하는 시트의 이름입니다.
 school_sheet = spreadsheet.worksheet('학교')
+booth_sheet = spreadsheet.worksheet('동아리부스')
 
 def data_input(input_list):
     all_data = np.array(sheet.get_all_values())
@@ -69,9 +70,19 @@ def data_input(input_list):
         sheet.update_cell(last_row,9, value="=\"Daugu-2024-\"&text(H"+str(last_row)+",\"00#\")")
         st.success(message.format(input_list[0][0], input_list[0][2], input_list[0][3], input_list[0][4], input_list[0][5]))
 
+def data_input_tosheet(sheet_name, input_list, start_col="B"):
+    all_data = np.array(sheet_name.get_all_values())
+    last_row = all_data.shape[0]
+    sheet_name.update_cell(last_row+1, 1, value="=row()-1")
+    formatted_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    input_list.append(formatted_time)
+    sheet_name.update(start_col+str(last_row+1), [input_list])
 
-def data_load():
-    all_data = pd.DataFrame(sheet.get_all_values())
+
+
+
+def data_load(sheet_name):
+    all_data = pd.DataFrame(sheet_name.get_all_values())
     all_data.columns = list(all_data.iloc[0])
     all_data = all_data.iloc[1:]
     return all_data
@@ -115,9 +126,9 @@ def input_serial():
         sheet.update(range_name="H" + str(insert_index[i] + 1), values=[[int(now_max_serial) + i + 1]])
 
 #API메일로 해당폴더 공유설정에 '편집자'권한으로 설정하기
-using_folder_id = "1hDFC1bc9MNMn5U3XcBcAh-LrVwNpO8Nt"
 
-def data_upload_file():
+
+def data_upload_file(using_folder_id):
     # 파일 업로더
 
     uploaded_file = st.file_uploader("파일을 선택하세요", type=["pdf", "csv", "xls", "xlsx", "hwp", "hwpx"])
@@ -126,7 +137,7 @@ def data_upload_file():
     file_list_call = cols[2].button("제출목록")
 
 
-    file_names, file_ids = file_name_id_list()
+    file_names, file_ids = file_name_id_list(using_folder_id)
     if uploaded_file is not None and upload_btn:
 
         if uploaded_file.name in file_names:
@@ -170,7 +181,7 @@ def data_upload_file():
             sorted_df = df.sort_values(by='createdTime', ascending=False)
             st.dataframe(sorted_df[['name', 'createdTime']])
 
-def file_name_id_list():
+def file_name_id_list(using_folder_id):
     query = f"'{using_folder_id}' in parents"
     results = service.files().list(q=query, fields="files(id, name, createdTime)").execute()
     items = results.get('files', [])

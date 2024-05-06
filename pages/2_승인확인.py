@@ -1,11 +1,11 @@
 import streamlit as st
 import numpy as np
 from functions import data_load, approval_filter, conditional_filter, input_serial
-
+from functions import sheet
 
 def main():
     st.subheader('2024. 대구수학페스티벌 참가자 확인')
-    data = data_load()
+    data = data_load(sheet)
     approved_data = approval_filter(data)
 
     row1 = st.columns(2)
@@ -46,7 +46,7 @@ def main():
                                            student_name=student_name)
         st.dataframe(filtered_data[["학교명", "발급번호","학년", "반", "번호", "이름"]], use_container_width=True)
 
-    st.write("ver.2024.05.02. 2:36")
+    st.write("ver.2024.05.06. 17:36")
 
 if __name__ == '__main__':
     main()

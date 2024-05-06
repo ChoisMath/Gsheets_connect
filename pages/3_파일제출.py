@@ -12,7 +12,9 @@ def main():
     수정된 파일을 업로드 할 떄도 파일명을 그대로 올려주시면,  
     기존 파일은 삭제되고 새로운 파일이 업로드됩니다.
     """)
-    data_upload_file()
+
+    using_folder_id = "1hDFC1bc9MNMn5U3XcBcAh-LrVwNpO8Nt"
+    data_upload_file(using_folder_id)
 
 
 
