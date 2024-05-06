@@ -50,7 +50,7 @@ using_spreadsheet_id = '1DwMKa9x9mHZnKUFgylhgQahEoFaTmfHCr4yeCVNVpT4'
 spreadsheet = client.open_by_key(using_spreadsheet_id)
 
 # 시트 선택
-sheet = spreadsheet.worksheet('sheet1') # 'Sheet1'은 열고자 하는 시트의 이름입니다.
+sheet = spreadsheet.worksheet('체험활동') # 'Sheet1'은 열고자 하는 시트의 이름입니다.
 school_sheet = spreadsheet.worksheet('학교')
 
 def data_input(input_list):
