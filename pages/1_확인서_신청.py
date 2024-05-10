@@ -1,5 +1,5 @@
 import streamlit as st
-from functions import data_input
+from functions import chehum
 import datetime, json
 
 
@@ -16,7 +16,7 @@ def main():
     birthdate = row2[1].date_input("생년월일", datetime.date(2007, 1, 1))
     json_birth = json.dumps(birthdate, default=str).strip("\"")
 
-    input_list = [[school_name, grade_num, student_ban, student_id, student_name, json_birth]]
+    input_list = [school_name, grade_num, student_ban, student_id, student_name, json_birth]
 
     explain_toggle = st.toggle("항목별 설명")
     if explain_toggle:
@@ -26,7 +26,8 @@ def main():
 
     submit = st.button("모든 정보를 정확히 입력하였습니까? 오류가 있을 경우 확인서가 발급되지 않을 수 있습니다.\n 저장하시겠습니까? ")
     if submit:
-        data_input(input_list)
+        che = chehum()
+        che.data_input_chehum(input_list)
 
 
 if __name__ == "__main__":

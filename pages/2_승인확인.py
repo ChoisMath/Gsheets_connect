@@ -1,12 +1,12 @@
 import streamlit as st
 import numpy as np
-from functions import data_load, approval_filter, conditional_filter, input_serial
-from functions import sheet
+from functions import conditional_filter
+from functions import chehum
 
 def main():
     st.subheader('2024. 대구수학페스티벌 참가자 확인')
-    data = data_load(sheet)
-    approved_data = approval_filter(data)
+    che = chehum()
+    approved_data = che.chehum_approval_df()
 
     row1 = st.columns(2)
     school_name = row1[0].selectbox('학교명', options=np.unique(np.array(approved_data['학교명'])))
@@ -33,20 +33,19 @@ def main():
     row3 = st.columns([0.7,1.2,0.5])
     set_serial = row3[0].button("일련번호 입력")
     if set_serial:
-        input_serial()
+        che.serial_input_chehum()
 
 
-    filter = row3[2].button("검색")
-    if filter:
-        filtered_data = conditional_filter(approved_data,
-                                           school_name=school_name,
-                                           grade_num=grade_num,
-                                           student_ban=student_ban,
-                                           student_id=student_id,
-                                           student_name=student_name)
-        st.dataframe(filtered_data[["학교명", "발급번호","학년", "반", "번호", "이름"]], use_container_width=True)
 
-    st.write("ver.2024.05.06. 17:36")
+    filtered_data = conditional_filter(approved_data,
+                                       school_name=school_name,
+                                       grade_num=grade_num,
+                                       student_ban=student_ban,
+                                       student_id=student_id,
+                                       student_name=student_name)
+    st.dataframe(filtered_data[["학교명", "발급번호","학년", "반", "번호", "이름"]], use_container_width=True)
+
+    st.write("ver.2024.05.10. 14:36")
 
 if __name__ == '__main__':
     main()

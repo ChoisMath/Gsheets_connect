@@ -6,10 +6,11 @@ from google.oauth2 import service_account
 from gspread_formatting import DataValidationRule, BooleanCondition, set_data_validation_for_cell_range
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseUpload
-from google.oauth2.service_account import Credentials
 from io import BytesIO
 import tempfile
 import time
+import pytz
+from datetime import datetime
 
 # 서비스 계정 정보
 credental_json = {
@@ -41,6 +42,105 @@ client = gc.authorize(credentials)
 # Google Drive 서비스 객체 생성
 service = build('drive', 'v3', credentials=credentials)
 
+def get_seoul_time():
+    # 서울 시간대 객체 생성
+    seoul_tz = pytz.timezone('Asia/Seoul')
+
+    # 현재 UTC 시간을 가져온 후 서울 시간대로 변환
+    utc_dt = datetime.utcnow()
+    utc_dt = utc_dt.replace(tzinfo=pytz.utc)  # UTC 시간대 정보 추가
+    seoul_dt = utc_dt.astimezone(seoul_tz)  # 서울 시간대로 변환
+
+    # strftime을 사용하여 원하는 형식의 문자열로 변환
+    formatted_time = seoul_dt.strftime('%Y-%m-%d %H:%M:%S')
+    return formatted_time
+
+def data_load(sheet_name):
+    all_data = pd.DataFrame(sheet_name.get_all_values())
+    all_data.columns = list(all_data.iloc[0])
+    all_data = all_data.iloc[1:]
+    return all_data
+
+def approval_filter(data):
+    data = data.dropna(axis=0, how='any')
+    data = data[data['승인']=="TRUE"]
+    return data
+
+class chehum:
+    def __init__(self):
+        self.using_spreadsheet_id = '1DwMKa9x9mHZnKUFgylhgQahEoFaTmfHCr4yeCVNVpT4'
+        self.spreadsheet = client.open_by_key(self.using_spreadsheet_id)
+        self.chehumsheet = spreadsheet.worksheet('체험활동')  # 'Sheet1'은 열고자 하는 시트의 이름입니다.
+        self.school_sheet = spreadsheet.worksheet('학교')
+        self.booth_sheet = spreadsheet.worksheet('동아리부스')
+
+
+    def insert_row(self, input_list, last_row, message):
+        self.chehumsheet.add_rows(1)
+        validation_rule = DataValidationRule(
+            BooleanCondition('BOOLEAN', ['TRUE', 'FALSE']),
+            # condition'type' and 'values', defaulting to TRUE/FALSE
+            showCustomUi=True)
+        set_data_validation_for_cell_range(self.chehumsheet, "A" + str(last_row), validation_rule)  # inserting checkbox
+        input_list.append(get_seoul_time())
+        self.chehumsheet.update(range_name="B" + str(last_row), values=[input_list])
+        self.chehumsheet.update_cell(last_row, 10, value="=\"Daugu-2024-\"&text(I" + str(last_row) + ",\"00#\")")
+        st.success(message.format(input_list[0], input_list[1], input_list[2], input_list[3], input_list[4]))
+
+
+
+    def data_input_chehum(self, input_list):
+        last_row = self.chehumsheet.row_count+1
+        del_message = """{0} {1}학년 {2}반 {3}번 {4}학생의 정보가 기존에 있습니다..  
+         삭제후 다시 저장하였습니다.  
+         대구과학고등학교 본관 1층 로비로 가서 체험활동확인서를 제출하고 승인 받으세요."""
+        message = """{0} {1}학년 {2}반 {3}번 {4}학생의 정보가 저장되었습니다.  
+         대구과학고등학교 본관 1층 로비로 가서 체험활동확인서를 제출하고 승인 받으세요."""
+        if input_list[4] == "":
+            st.warning("학생의 이름을 입력하지 않았습니다. 입력되지 않습니다.")
+        else:
+            chehum_df = self.chehum_df()
+            detect_same_index = self.detect_same_index(chehum_df, input_list[:5])
+
+            if detect_same_index:
+                index_TF = chehum_df['승인'].values.tolist()[detect_same_index]
+                if index_TF=='TRUE':
+                    st.warning("해당 학생의 정보가 이미 승인되었습니다. [승인확인] 탭에서 발급번호를 확인하세요.")
+                else:
+                    self.chehumsheet.delete_rows(detect_same_index+2)
+                    self.insert_row(input_list, last_row-1, del_message)
+
+            else:
+                self.insert_row(input_list, last_row, message)
+
+
+    def serial_input_chehum(self):
+        chehumdata = self.chehum_df()
+        serials = chehumdata['일련번호'].tolist()
+        max_serial = max(serials)
+        approved_data = chehumdata[chehumdata['승인']=="TRUE"]
+        insert_index = approved_data[approved_data['일련번호'] == ''].index
+        for i in range(len(insert_index)):
+            sheet.update(range_name="I" + str(insert_index[i] + 1), values=[[int(max_serial) + i + 1]])
+
+
+
+    def chehum_df(self):
+        chehumdf= data_load(self.chehumsheet)
+        return chehumdf
+
+    def chehum_approval_df(self):
+        data = self.chehum_df()
+        data = data[data['승인'] == "TRUE"]
+        return data
+
+    def detect_same_index(self, df, input_list):
+        data = df.values[:,1:6].tolist()
+        input_list = [str(x) for x in input_list]
+        if input_list in data:
+             return data.index(input_list)
+        else:
+            return None
 
 
 
@@ -81,16 +181,7 @@ def data_input_tosheet(sheet_name, input_list, start_col="B"):
 
 
 
-def data_load(sheet_name):
-    all_data = pd.DataFrame(sheet_name.get_all_values())
-    all_data.columns = list(all_data.iloc[0])
-    all_data = all_data.iloc[1:]
-    return all_data
 
-def approval_filter(data):
-    data = data.dropna(axis=0, how='any')
-    data = data[data['승인']=="TRUE"]
-    return data
 
 def conditional_filter(data,
                        school_name = None,
@@ -113,7 +204,7 @@ def conditional_filter(data,
     return filtered_data
 
 def input_serial():
-    data = data_load()
+    data = data_load(sheet)
     approved_data = approval_filter(data)
     insert_index = approved_data[approved_data['일련번호'] == ''].index
     serials = data['일련번호'].values.tolist()
