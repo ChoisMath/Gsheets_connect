@@ -1,6 +1,6 @@
 import streamlit as st
 
-from functions import data_upload_file
+from functions import drive_uoload
 
 
 # Streamlit 앱 설정
@@ -14,9 +14,8 @@ def main():
     """)
 
     using_folder_id = "1hDFC1bc9MNMn5U3XcBcAh-LrVwNpO8Nt"
-    data_upload_file(using_folder_id)
-
-
+    dsf = drive_uoload(using_folder_id)
+    dsf.data_upload_file()
 
 
 

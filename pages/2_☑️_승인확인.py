@@ -1,7 +1,9 @@
-import streamlit as st
 import numpy as np
-from functions import conditional_filter
+import streamlit as st
+
 from functions import chehum
+from functions import conditional_filter
+
 
 def main():
     st.subheader('2024. 대구수학페스티벌 참가자 확인')
