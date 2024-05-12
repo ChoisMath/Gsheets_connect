@@ -66,13 +66,33 @@ def approval_filter(data):
     data = data[data['승인']=="TRUE"]
     return data
 
+def conditional_filter(data,
+                       school_name = None,
+                       grade_num = None,
+                       student_ban = None,
+                       student_id = None,
+                       student_name =None):
+    filtered_data = data
+    if school_name is not None:
+        filtered_data = filtered_data[filtered_data["학교명"]==school_name]
+    if grade_num is not None:
+        filtered_data = filtered_data[filtered_data['학년']==str(grade_num)]
+    if student_ban is not None:
+        filtered_data = filtered_data[filtered_data['반']==str(student_ban)]
+    if student_id is not None:
+        filtered_data = filtered_data[filtered_data['번호']==str(student_id)]
+    if student_name is not None:
+        filtered_data = filtered_data[filtered_data['이름']==student_name]
+
+    return filtered_data
+
 class chehum:
     def __init__(self):
         self.using_spreadsheet_id = '1DwMKa9x9mHZnKUFgylhgQahEoFaTmfHCr4yeCVNVpT4'
         self.spreadsheet = client.open_by_key(self.using_spreadsheet_id)
-        self.chehumsheet = spreadsheet.worksheet('체험활동')  # 'Sheet1'은 열고자 하는 시트의 이름입니다.
-        self.school_sheet = spreadsheet.worksheet('학교')
-        self.booth_sheet = spreadsheet.worksheet('동아리부스')
+        self.chehumsheet = self.spreadsheet.worksheet('체험활동')  # 'Sheet1'은 열고자 하는 시트의 이름입니다.
+        self.school_sheet = self.spreadsheet.worksheet('학교')
+
 
 
     def insert_row(self, input_list, last_row, message):
@@ -144,140 +164,173 @@ class chehum:
 
 
 
-# 스프레드시트 열기
-#API메일로 해당 스프레드시트 공유설정에 '편집자'권한으로 설정하기
-using_spreadsheet_id = '1DwMKa9x9mHZnKUFgylhgQahEoFaTmfHCr4yeCVNVpT4'
-spreadsheet = client.open_by_key(using_spreadsheet_id)
+class drive_uoload:
+    def __init__(self, drive_folder_id):
+        self.drive_folder_id = drive_folder_id
 
-# 시트 선택
-sheet = spreadsheet.worksheet('체험활동') # 'Sheet1'은 열고자 하는 시트의 이름입니다.
-school_sheet = spreadsheet.worksheet('학교')
-booth_sheet = spreadsheet.worksheet('동아리부스')
+    def data_upload_file(self):
 
-def data_input(input_list):
-    all_data = np.array(sheet.get_all_values())
-    last_row = all_data.shape[0]+1
-    message = """{0} {1}학년 {2}반 {3}번 {4}학생의 정보가 저장되었습니다.  
-     대구과학고등학교 본관 1층 로비로 가서 체험활동확인서를 제출하고 승인 받으세요."""
-    if input_list[0][4] == "":
-        st.warning("학생의 이름을 입력하지 않았습니다. 입력되지 않습니다.")
-    else:
-        sheet.update(range_name="B" + str(last_row), values=input_list)
-        validation_rule = DataValidationRule(
-            BooleanCondition('BOOLEAN', ['TRUE', 'FALSE']),  # condition'type' and 'values', defaulting to TRUE/FALSE
-            showCustomUi=True)
-        set_data_validation_for_cell_range(sheet,"A" + str(last_row), validation_rule)  # inserting checkbox
-        sheet.update_cell(last_row,9, value="=\"Daugu-2024-\"&text(H"+str(last_row)+",\"00#\")")
-        st.success(message.format(input_list[0][0], input_list[0][2], input_list[0][3], input_list[0][4], input_list[0][5]))
+        using_folder_id = self.drive_folder_id
+        # 파일 업로더
 
-def data_input_tosheet(sheet_name, input_list, start_col="B"):
-    all_data = np.array(sheet_name.get_all_values())
-    last_row = all_data.shape[0]
-    sheet_name.update_cell(last_row+1, 1, value="=row()-1")
-    formatted_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-    input_list.append(formatted_time)
-    sheet_name.update(start_col+str(last_row+1), [input_list])
+        uploaded_file = st.file_uploader("파일을 선택하세요", type=["pdf", "csv", "xls", "xlsx", "hwp", "hwpx"])
+        cols = st.columns([0.5, 1, 0.5])
+        upload_btn = cols[0].button("업로드")
+        file_list_call = cols[2].button("제출목록")
 
+        file_names, file_ids = self.file_name_id_list()
+        if uploaded_file is not None and upload_btn:
 
+            if uploaded_file.name in file_names:
+                index_list = file_names.index(uploaded_file.name)
+                file_id = file_ids[index_list]
+                service.files().delete(fileId=file_id).execute()
 
+            # 파일을 임시 디렉토리에 저장
+            with tempfile.NamedTemporaryFile(delete=False, suffix='_' + uploaded_file.name) as tmp_file:
+                tmp_file.write(uploaded_file.getvalue())
+                file_path = tmp_file.name
 
+            # 파일 메타데이터 생성
+            file_metadata = {'name': uploaded_file.name, 'parents': [using_folder_id]}
 
+            # 파일 콘텐츠를 메모리에서 읽기
+            file_stream = BytesIO(uploaded_file.getvalue())
+            media = MediaIoBaseUpload(file_stream, mimetype=uploaded_file.type)
 
-def conditional_filter(data,
-                       school_name = None,
-                       grade_num = None,
-                       student_ban = None,
-                       student_id = None,
-                       student_name =None):
-    filtered_data = data
-    if school_name is not None:
-        filtered_data = filtered_data[filtered_data["학교명"]==school_name]
-    if grade_num is not None:
-        filtered_data = filtered_data[filtered_data['학년']==str(grade_num)]
-    if student_ban is not None:
-        filtered_data = filtered_data[filtered_data['반']==str(student_ban)]
-    if student_id is not None:
-        filtered_data = filtered_data[filtered_data['번호']==str(student_id)]
-    if student_name is not None:
-        filtered_data = filtered_data[filtered_data['이름']==student_name]
+            # 파일 업로드 실행
+            try:
+                file = service.files().create(body=file_metadata, media_body=media, fields='id, name').execute()
+                st.success(f'파일이 성공적으로 업로드 되었습니다. 파일 이름: {file["name"]}')
 
-    return filtered_data
-
-def input_serial():
-    data = data_load(sheet)
-    approved_data = approval_filter(data)
-    insert_index = approved_data[approved_data['일련번호'] == ''].index
-    serials = data['일련번호'].values.tolist()
-    now_max_serial = np.max([int(x) if x != '' else 0 for x in serials])
-    # st.success(insert_index)
-    # st.success(serials)
-    # st.success(now_max_serial)
-
-    for i in range(len(insert_index)):
-        sheet.update(range_name="H" + str(insert_index[i] + 1), values=[[int(now_max_serial) + i + 1]])
-
-#API메일로 해당폴더 공유설정에 '편집자'권한으로 설정하기
+            except Exception as e:
+                st.error(f'파일 업로드 실패: {e}')
 
 
-def data_upload_file(using_folder_id):
-    # 파일 업로더
+        else:
+            st.warning('[업로드]를 눌러 파일을 올리고, [제출목록]을 눌러 제출여부를 확인해 주세요.')
 
-    uploaded_file = st.file_uploader("파일을 선택하세요", type=["pdf", "csv", "xls", "xlsx", "hwp", "hwpx"])
-    cols = st.columns([0.5, 1, 0.5])
-    upload_btn = cols[0].button("업로드")
-    file_list_call = cols[2].button("제출목록")
+        if file_list_call:
+            query = f"'{using_folder_id}' in parents"
+            results = service.files().list(q=query, fields="files(id, name, createdTime)").execute()
+            items = results.get('files', [])
+            # 파일 목록 출력
+            if not items:
+                st.warning('No files found.')
+            else:
+                df = pd.DataFrame(items)
+                sorted_df = df.sort_values(by='createdTime', ascending=False)
+                st.dataframe(sorted_df[['name', 'createdTime']])
 
+    def file_name_id_list(self):
 
-    file_names, file_ids = file_name_id_list(using_folder_id)
-    if uploaded_file is not None and upload_btn:
-
-        if uploaded_file.name in file_names:
-            index_list = file_names.index(uploaded_file.name)
-            file_id = file_ids[index_list]
-            service.files().delete(fileId=file_id).execute()
-
-        # 파일을 임시 디렉토리에 저장
-        with tempfile.NamedTemporaryFile(delete=False, suffix='_' + uploaded_file.name) as tmp_file:
-            tmp_file.write(uploaded_file.getvalue())
-            file_path = tmp_file.name
-
-        # 파일 메타데이터 생성
-        file_metadata = {'name': uploaded_file.name, 'parents': [using_folder_id]}
-
-        # 파일 콘텐츠를 메모리에서 읽기
-        file_stream = BytesIO(uploaded_file.getvalue())
-        media = MediaIoBaseUpload(file_stream, mimetype=uploaded_file.type)
-
-        # 파일 업로드 실행
-        try:
-            file = service.files().create(body=file_metadata, media_body=media, fields='id, name').execute()
-            st.success(f'파일이 성공적으로 업로드 되었습니다. 파일 이름: {file["name"]}')
-
-        except Exception as e:
-            st.error(f'파일 업로드 실패: {e}')
-
-
-    else:
-        st.warning('[업로드]를 눌러 파일을 올리고, [제출목록]을 눌러 제출여부를 확인해 주세요.')
-
-    if file_list_call:
+        using_folder_id = self.drive_folder_id
         query = f"'{using_folder_id}' in parents"
         results = service.files().list(q=query, fields="files(id, name, createdTime)").execute()
         items = results.get('files', [])
-        # 파일 목록 출력
-        if not items:
-            st.warning('No files found.')
+        file_names = pd.DataFrame(items)['name'].tolist()
+        file_ids = pd.DataFrame(items)['id'].tolist()
+        return file_names, file_ids
+
+
+class booth:
+    def __init__(self):
+        self.using_spreadsheet_id = '1DwMKa9x9mHZnKUFgylhgQahEoFaTmfHCr4yeCVNVpT4'
+        self.spreadsheet = client.open_by_key(self.using_spreadsheet_id)
+        self.boothsheet = self.spreadsheet.worksheet('동아리부스')  # 'Sheet1'은 열고자 하는 시트의 이름입니다.
+        self.booth_df = data_load(self.boothsheet)
+        self.stusheet = self.spreadsheet.worksheet('부스학생')
+        self.stu_df = data_load(self.stusheet)
+
+
+    def insert_row(self, input_list, last_row, message):
+        bsheet = self.boothsheet
+        bsheet.add_rows(1)
+        validation_rule = DataValidationRule(
+            BooleanCondition('BOOLEAN', ['TRUE', 'FALSE']),
+            # condition'type' and 'values', defaulting to TRUE/FALSE
+            showCustomUi=True)
+        set_data_validation_for_cell_range(bsheet, "A" + str(last_row), validation_rule)  # inserting checkbox
+        bsheet.update_cell(last_row, 2, value="=row()-1")
+
+        input_list.append(get_seoul_time())
+        bsheet.update(range_name="C" + str(last_row), values=[input_list])
+        st.success(message.format(input_list[3], input_list[4], input_list[5]))
+
+    def detect_same_index(self, df, input_list):
+        check_data = df[['학교명','팀명']].values.tolist()
+        if input_list in check_data:
+             return check_data.index(input_list)
         else:
-            df = pd.DataFrame(items)
-            sorted_df = df.sort_values(by='createdTime', ascending=False)
-            st.dataframe(sorted_df[['name', 'createdTime']])
+            return None
 
-def file_name_id_list(using_folder_id):
-    query = f"'{using_folder_id}' in parents"
-    results = service.files().list(q=query, fields="files(id, name, createdTime)").execute()
-    items = results.get('files', [])
-    file_names = pd.DataFrame(items)['name'].tolist()
-    file_ids = pd.DataFrame(items)['id'].tolist()
-    return file_names, file_ids
+    def data_input_booth(self, input_list, start_col="B"):
+        bsheet = self.boothsheet
+        b_df = self.booth_df
+        last_row = bsheet.row_count + 1
+        input_list.append(get_seoul_time())
 
+
+        del_message = """{0} {1} 동아리의 기존 정보를 삭제하고 새로 입력한 주제 {2} 로 업데이트합니다.  
+            변경이 불가하도록 하시려면 [대구과학고 교사 최재혁]에게 교육청 메신져로 메시지 하시면 됩니다. 
+            내용: // {0} 학교 {1} 동아리 정보는 더이상 수정하지 않겠습니다. //  """
+        message = "{0} {1} 동아리의 주제 {2}의 정보가 입력되었습니다. 불러오기를 통해 잘 저장되었는지 확인하세요. "
+
+        detect_same_index = self.detect_same_index(b_df, input_list[3:5])
+
+        if detect_same_index:
+            index_TF = b_df['승인'].values.tolist()[detect_same_index]
+            if index_TF == 'TRUE':
+                st.warning("해당 동아리의 정보가 수정불가로 설정되었습니다.")
+            else:
+                bsheet.delete_rows(detect_same_index + 2)
+                self.insert_row(input_list, last_row - 1, del_message)
+
+        else:
+            self.insert_row(input_list, last_row, message)
+
+
+
+
+    def insert_row_stu(self, input_list, last_row, message):
+        ssheet = self.stusheet
+        ssheet.add_rows(1)
+        validation_rule = DataValidationRule(
+            BooleanCondition('BOOLEAN', ['TRUE', 'FALSE']),
+            # condition'type' and 'values', defaulting to TRUE/FALSE
+            showCustomUi=True)
+        set_data_validation_for_cell_range(ssheet, "A" + str(last_row), validation_rule)  # inserting checkbox
+        ssheet.update_cell(last_row, 2, value="=row()-1")
+
+        input_list.append(get_seoul_time())
+        ssheet.update(range_name="C" + str(last_row), values=[input_list])
+        st.success(message.format(input_list[0], input_list[1], input_list[2], input_list[3], input_list[4]))
+
+
+    def stu_df_input(self, excel_df):
+        stusheet = self.stusheet
+        stu_df = self.stu_df
+
+        excel_tolist = excel_df.values.tolist()[1:]
+
+
+        for input_list in excel_tolist:
+            last_row = stusheet.row_count + 1
+
+            del_message = """{0} {1}학년 {2}반 {3}번 {4}학생의 정보가 기존에 있습니다.  
+             삭제후 다시 저장하였습니다."""
+            message = """{0} {1}학년 {2}반 {3}번 {4}학생의 정보가 저장되었습니다."""
+
+            detect_same_index = self.detect_same_index(stu_df, input_list[0:2])
+
+            if detect_same_index:
+                index_TF = stu_df['승인'].values.tolist()[detect_same_index]
+                if index_TF == 'TRUE':
+                    st.warning("해당 동아리의 정보가 수정불가로 설정되었습니다.")
+                else:
+                    stusheet.delete_rows(detect_same_index + 2)
+                    self.insert_row_stu(input_list, last_row - 1, del_message)
+
+            else:
+                self.insert_row_stu(input_list, last_row, message)
 
