@@ -44,7 +44,7 @@ def main():
         b.stu_df_input(excel_df)
 
     stusheet = b.spreadsheet.worksheet("부스학생")
-    stu_df = data_load(stusheet)
+    stu_df = data_load(stusheet).sort_values(by=['입력시간'], ascending=False)
     st.dataframe(stu_df)
         
 

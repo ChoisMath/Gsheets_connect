@@ -304,15 +304,19 @@ class booth:
 
         input_list.append(get_seoul_time())
         ssheet.update(range_name="C" + str(last_row), values=[input_list])
-        st.success(message.format(input_list[0], input_list[1], input_list[2], input_list[3], input_list[4]))
+        st.success(message.format(input_list[0], input_list[2], input_list[3], input_list[4], input_list[5]))
 
 
+    def detect_same_stu_index(self, df, input_list):
+        check_data = df.iloc[:,2:8].values.tolist()
+        if input_list in check_data:
+            return check_data.index(input_list)
+        else:
+            return None
     def stu_df_input(self, excel_df):
         stusheet = self.stusheet
         stu_df = self.stu_df
-
-        excel_tolist = excel_df.values.tolist()[1:]
-
+        excel_tolist = excel_df.values.tolist()
 
         for input_list in excel_tolist:
             last_row = stusheet.row_count + 1
@@ -320,8 +324,8 @@ class booth:
             del_message = """{0} {1}학년 {2}반 {3}번 {4}학생의 정보가 기존에 있습니다.  
              삭제후 다시 저장하였습니다."""
             message = """{0} {1}학년 {2}반 {3}번 {4}학생의 정보가 저장되었습니다."""
-
-            detect_same_index = self.detect_same_index(stu_df, input_list[0:2])
+            inputlist = [str(x) for x in input_list[0:6]]
+            detect_same_index = self.detect_same_stu_index(stu_df, inputlist)
 
             if detect_same_index:
                 index_TF = stu_df['승인'].values.tolist()[detect_same_index]
