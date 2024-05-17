@@ -327,7 +327,7 @@ class booth:
             inputlist = [str(x) for x in input_list[0:6]]
             detect_same_index = self.detect_same_stu_index(stu_df, inputlist)
 
-            if detect_same_index:
+            if detect_same_index is not None:
                 index_TF = stu_df['승인'].values.tolist()[detect_same_index]
                 if index_TF == 'TRUE':
                     st.warning("해당 동아리의 정보가 수정불가로 설정되었습니다.")
