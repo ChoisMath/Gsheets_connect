@@ -1,14 +1,12 @@
 import pandas as pd
 import streamlit as st
 import gspread as gc
-import numpy as np
 from google.oauth2 import service_account
 from gspread_formatting import DataValidationRule, BooleanCondition, set_data_validation_for_cell_range
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseUpload
 from io import BytesIO
 import tempfile
-import time
 import pytz
 from datetime import datetime
 
@@ -141,7 +139,7 @@ class chehum:
         approved_data = chehumdata[chehumdata['승인']=="TRUE"]
         insert_index = approved_data[approved_data['일련번호'] == ''].index
         for i in range(len(insert_index)):
-            sheet.update(range_name="I" + str(insert_index[i] + 1), values=[[int(max_serial) + i + 1]])
+            self.chehumsheet.update(range_name="I" + str(insert_index[i] + 1), values=[[int(max_serial) + i + 1]])
 
 
 
@@ -310,7 +308,7 @@ class booth:
     def detect_same_stu_index(self, df, input_list):
         check_data = df.iloc[:,2:8].values.tolist()
         if input_list in check_data:
-            return check_data.index(input_list)
+            return check_data.index(input_list)+2
         else:
             return None
     def stu_df_input(self, excel_df):
@@ -319,7 +317,7 @@ class booth:
         excel_tolist = excel_df.values.tolist()
 
         for input_list in excel_tolist:
-            last_row = stusheet.row_count + 1
+            last_row = stusheet.row_count
 
             del_message = """{0} {1}학년 {2}반 {3}번 {4}학생의 정보가 기존에 있습니다.  
              삭제후 다시 저장하였습니다."""
@@ -328,13 +326,13 @@ class booth:
             detect_same_index = self.detect_same_stu_index(stu_df, inputlist)
 
             if detect_same_index is not None:
-                index_TF = stu_df['승인'].values.tolist()[detect_same_index]
+                index_TF = stu_df['승인'].values.tolist()[detect_same_index-2]
                 if index_TF == 'TRUE':
                     st.warning("해당 동아리의 정보가 수정불가로 설정되었습니다.")
                 else:
-                    stusheet.delete_rows(detect_same_index + 2)
-                    self.insert_row_stu(input_list, last_row - 1, del_message)
+                    stusheet.delete_rows(detect_same_index)
+                    self.insert_row_stu(input_list, last_row , del_message)
 
             else:
-                self.insert_row_stu(input_list, last_row, message)
+                self.insert_row_stu(input_list, last_row+1, message)
 
