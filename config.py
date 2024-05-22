@@ -5,8 +5,8 @@ import streamlit as st
 env_config = configparser.ConfigParser()
 env_config.read('.streamlit/config.ini', encoding='utf-8')
 
-api_key = st.secrets['solapi_api_key']
-api_secret = st.secrets['solapi_api_secret']
+api_key = st.secrets["solapi_api_key"]
+api_secret = st.secrets["solapi_api_secret"]
 protocol = 'https'
 domain = 'api.solapi.com'
 prefix = ''

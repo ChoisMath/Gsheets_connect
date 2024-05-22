@@ -63,7 +63,7 @@ def main():
             }
         }
         res = msg.send_one(data)
-        print(json.dumps(res.json(), indent=2, ensure_ascii=False))
+        st.write(json.dumps(res.json(), indent=2, ensure_ascii=False)["statusMessage"])
     elif len(balgub) != 1:
         st.warning("검색된 대상이 2명 2상입니다. 검색조건을 상세히 입력하세요.")
     else:
