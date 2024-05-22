@@ -52,7 +52,8 @@ def main():
     
     row4 = st.columns([1.2,0.7])
     cellphone = row4[0].text_input("C.P (-없이 번호만쓰세요)")
-    send_msg = row4[1].button("문자보내기")
+    send_msg = row4[1].button("문자보내기-현재정지")
+    send_msg = False #기능키려면 주석처리
     balgub = filtered_data[["발급번호"]].values.tolist()
     if send_msg and len(balgub) == 1:
         data = {
