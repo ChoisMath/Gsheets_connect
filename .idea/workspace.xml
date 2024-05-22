@@ -142,15 +142,7 @@
       <workItem from="1716035436216" duration="6127000" />
       <workItem from="1716041610795" duration="124000" />
       <workItem from="1716372299620" duration="1614000" />
-      <workItem from="1716374437044" duration="524000" />
-    </task>
-    <task id="LOCAL-00005" summary="2024_dsf_신청(초안_0428)">
-      <option name="closed" value="true" />
-      <created>1714307926372</created>
-      <option name="number" value="00005" />
-      <option name="presentableId" value="LOCAL-00005" />
-      <option name="project" value="LOCAL" />
-      <updated>1714307926372</updated>
+      <workItem from="1716374437044" duration="724000" />
     </task>
     <task id="LOCAL-00006" summary="2024_dsf_신청(초안_0428)">
       <option name="closed" value="true" />
@@ -536,7 +528,15 @@
       <option name="project" value="LOCAL" />
       <updated>1715923937858</updated>
     </task>
-    <option name="localTasksCounter" value="54" />
+    <task id="LOCAL-00054" summary="fileupload_data_2024_0512">
+      <option name="closed" value="true" />
+      <created>1716375037338</created>
+      <option name="number" value="00054" />
+      <option name="presentableId" value="LOCAL-00054" />
+      <option name="project" value="LOCAL" />
+      <updated>1716375037339</updated>
+    </task>
+    <option name="localTasksCounter" value="55" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
