@@ -43,7 +43,7 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/github/Gsheets_connect/.streamlit&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/github/Stream_GPT&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -137,15 +137,12 @@
       <workItem from="1715484874380" duration="497000" />
       <workItem from="1715567554444" duration="23000" />
       <workItem from="1715912955934" duration="1813000" />
-      <workItem from="1715923229211" duration="460000" />
-    </task>
-    <task id="LOCAL-00004" summary="2024_dsf_신청(초안_0428)">
-      <option name="closed" value="true" />
-      <created>1714299641646</created>
-      <option name="number" value="00004" />
-      <option name="presentableId" value="LOCAL-00004" />
-      <option name="project" value="LOCAL" />
-      <updated>1714299641646</updated>
+      <workItem from="1715923229211" duration="5116000" />
+      <workItem from="1716000419559" duration="1790000" />
+      <workItem from="1716035436216" duration="6127000" />
+      <workItem from="1716041610795" duration="124000" />
+      <workItem from="1716372299620" duration="1614000" />
+      <workItem from="1716374437044" duration="524000" />
     </task>
     <task id="LOCAL-00005" summary="2024_dsf_신청(초안_0428)">
       <option name="closed" value="true" />
@@ -531,7 +528,15 @@
       <option name="project" value="LOCAL" />
       <updated>1715923243290</updated>
     </task>
-    <option name="localTasksCounter" value="53" />
+    <task id="LOCAL-00053" summary="fileupload_data_2024_0512">
+      <option name="closed" value="true" />
+      <created>1715923937858</created>
+      <option name="number" value="00053" />
+      <option name="presentableId" value="LOCAL-00053" />
+      <option name="project" value="LOCAL" />
+      <updated>1715923937858</updated>
+    </task>
+    <option name="localTasksCounter" value="54" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -572,8 +577,13 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/pages/4_✒️_부스운영 신청.py</url>
-          <line>92</line>
+          <line>90</line>
           <option name="timeStamp" value="3" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/functions.py</url>
+          <line>294</line>
+          <option name="timeStamp" value="4" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

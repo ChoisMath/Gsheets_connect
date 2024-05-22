@@ -98,7 +98,7 @@ def main():
         if "" in check_list:
             index_num = check_list.index("")
             labels = ['학교급', '소속', '설립', '학교명', '팀명(동아리명)','부스운영주제','지도교사1','지도교사1 C.P.','지도교사1 E-Mail', '필요물품', '신청예산']
-            st.warning(f"{labels[index_num]}가 입력되지 않았습니다.")
+            st.warning(f"{labels[index_num]}이 입력되지 않았습니다.")
         else:
             b.data_input_booth(input_list, start_col="B")
 

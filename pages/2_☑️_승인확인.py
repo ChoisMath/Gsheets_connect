@@ -1,6 +1,9 @@
+import json
+
 import numpy as np
 import streamlit as st
 
+import message as msg
 from functions import chehum
 from functions import conditional_filter
 
@@ -36,7 +39,7 @@ def main():
     set_serial = row3[0].button("일련번호 입력")
     if set_serial:
         che.serial_input_chehum()
-
+        approved_data = chehum().chehum_approval_df()
 
 
     filtered_data = conditional_filter(approved_data,
@@ -46,8 +49,27 @@ def main():
                                        student_id=student_id,
                                        student_name=student_name)
     st.dataframe(filtered_data[["학교명", "발급번호","학년", "반", "번호", "이름"]], use_container_width=True)
+    
+    row4 = st.columns([1.2,0.7])
+    cellphone = row4[0].text_input("C.P (-없이 번호만쓰세요)")
+    send_msg = row4[1].button("문자보내기")
+    balgub = filtered_data[["발급번호"]].values.tolist()
+    if send_msg and len(balgub) == 1:
+        data = {
+            'message': {
+                'to': cellphone,
+                'from': '01051877235',
+                'text': f'[2024대구수학페스티벌] {school_name} {grade_num}학년 {student_name}학생은 [{balgub[0][0]}]로 이수됨'
+            }
+        }
+        res = msg.send_one(data)
+        print(json.dumps(res.json(), indent=2, ensure_ascii=False))
+    elif len(balgub) != 1:
+        st.warning("검색된 대상이 2명 2상입니다. 검색조건을 상세히 입력하세요.")
+    else:
+        st.success("번호를 입력하고 문자보내기 버튼을 누르세요.")
 
-    st.write("ver.2024.05.10. 14:36")
+
 
 if __name__ == '__main__':
     main()

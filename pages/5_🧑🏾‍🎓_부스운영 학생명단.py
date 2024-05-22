@@ -3,8 +3,8 @@ from io import BytesIO
 import pandas as pd
 import streamlit as st
 
-from functions import booth
 from functions import data_load
+from functions import stu
 
 
 def save_to_excel(df):
@@ -28,7 +28,7 @@ empty_data = {
 
 def main():
     st.subheader("2024-대수페-부스운영 학생명단 제출")
-
+    s=stu()
     empty_df = pd.DataFrame(empty_data)
     val = save_to_excel(empty_df)
     st.sidebar.download_button(
@@ -37,17 +37,20 @@ def main():
         file_name='2024대수페_부스운영학생신청(양식).xlsx',
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
-    b = booth()
     upload_file = st.sidebar.file_uploader("운영학생 파일업로드", type=["xls", "xlsx"])
     if upload_file is not None:
         excel_df = pd.read_excel(upload_file)
-        b.stu_df_input(excel_df)
+        s.stu_df_input(excel_df)
 
-    stusheet = b.spreadsheet.worksheet("부스학생")
+    stusheet = s.spreadsheet.worksheet("부스학생")
     stu_df = data_load(stusheet).sort_values(by=['입력시간'], ascending=False)
-    st.dataframe(stu_df)
+    st.dataframe(stu_df.iloc[:,2:])
         
-
+    st.link_button(
+        label = 'Link to Google Spreadsheet',
+        url='https://docs.google.com/spreadsheets/d/1DwMKa9x9mHZnKUFgylhgQahEoFaTmfHCr4yeCVNVpT4/edit#gid=634440090',
+        use_container_width=True
+    )
 
 
 if __name__ == "__main__":

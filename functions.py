@@ -1,14 +1,15 @@
-import pandas as pd
-import streamlit as st
+import tempfile
+from datetime import datetime
+from io import BytesIO
+
 import gspread as gc
+import pandas as pd
+import pytz
+import streamlit as st
 from google.oauth2 import service_account
-from gspread_formatting import DataValidationRule, BooleanCondition, set_data_validation_for_cell_range
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseUpload
-from io import BytesIO
-import tempfile
-import pytz
-from datetime import datetime
+from gspread_formatting import DataValidationRule, BooleanCondition, set_data_validation_for_cell_range
 
 # 서비스 계정 정보
 credental_json = {
@@ -88,48 +89,56 @@ class chehum:
     def __init__(self):
         self.using_spreadsheet_id = '1DwMKa9x9mHZnKUFgylhgQahEoFaTmfHCr4yeCVNVpT4'
         self.spreadsheet = client.open_by_key(self.using_spreadsheet_id)
-        self.chehumsheet = self.spreadsheet.worksheet('체험활동')  # 'Sheet1'은 열고자 하는 시트의 이름입니다.
-        self.school_sheet = self.spreadsheet.worksheet('학교')
+        self.chehumsheet = self.spreadsheet.worksheet('체험활동')
+        # self.school_sheet = self.spreadsheet.worksheet('학교')
 
-
-
-    def insert_row(self, input_list, last_row, message):
-        self.chehumsheet.add_rows(1)
+    def insert_row(self, sheet, input_list, last_row, message):
         validation_rule = DataValidationRule(
             BooleanCondition('BOOLEAN', ['TRUE', 'FALSE']),
             # condition'type' and 'values', defaulting to TRUE/FALSE
             showCustomUi=True)
-        set_data_validation_for_cell_range(self.chehumsheet, "A" + str(last_row), validation_rule)  # inserting checkbox
+        set_data_validation_for_cell_range(sheet, "A" + str(last_row), validation_rule)  # inserting checkbox
         input_list.append(get_seoul_time())
-        self.chehumsheet.update(range_name="B" + str(last_row), values=[input_list])
-        self.chehumsheet.update_cell(last_row, 10, value="=\"Daugu-2024-\"&text(I" + str(last_row) + ",\"00#\")")
+        sheet.update(range_name="B" + str(last_row), values=[input_list])
+        sheet.update_cell(last_row, 10, value="=\"Daugu-2024-\"&text(I" + str(last_row) + ",\"00#\")")
         st.success(message.format(input_list[0], input_list[1], input_list[2], input_list[3], input_list[4]))
 
 
+    def detect_same_index(self, df, input_list):
+        data = df.values[:,1:6].tolist()
+        input_list = [str(x) for x in input_list]
+        if input_list in data:
+             return data.index(input_list)+2
+        else:
+            return None
 
     def data_input_chehum(self, input_list):
-        last_row = self.chehumsheet.row_count+1
-        del_message = """{0} {1}학년 {2}반 {3}번 {4}학생의 정보가 기존에 있습니다..  
-         삭제후 다시 저장하였습니다.  
+
+
+        del_message = """{0} {1}학년 {2}반 {3}번 {4}학생의 기존에 기록된 정보를 수정하였습니다.  
          대구과학고등학교 본관 1층 로비로 가서 체험활동확인서를 제출하고 승인 받으세요."""
         message = """{0} {1}학년 {2}반 {3}번 {4}학생의 정보가 저장되었습니다.  
          대구과학고등학교 본관 1층 로비로 가서 체험활동확인서를 제출하고 승인 받으세요."""
+
         if input_list[4] == "":
             st.warning("학생의 이름을 입력하지 않았습니다. 입력되지 않습니다.")
         else:
+            csheet = self.chehumsheet
             chehum_df = self.chehum_df()
+
             detect_same_index = self.detect_same_index(chehum_df, input_list[:5])
 
             if detect_same_index:
-                index_TF = chehum_df['승인'].values.tolist()[detect_same_index]
-                if index_TF=='TRUE':
+                index_TF = chehum_df['승인'].values.tolist()[detect_same_index-2]
+                if index_TF == 'TRUE':
                     st.warning("해당 학생의 정보가 이미 승인되었습니다. [승인확인] 탭에서 발급번호를 확인하세요.")
                 else:
-                    self.chehumsheet.delete_rows(detect_same_index+2)
-                    self.insert_row(input_list, last_row-1, del_message)
+                    self.insert_row(csheet, input_list, detect_same_index, del_message)
 
             else:
-                self.insert_row(input_list, last_row, message)
+                last_row = csheet.row_count + 1
+                csheet.add_rows(1)
+                self.insert_row(csheet, input_list, last_row, message)
 
 
     def serial_input_chehum(self):
@@ -152,13 +161,6 @@ class chehum:
         data = data[data['승인'] == "TRUE"]
         return data
 
-    def detect_same_index(self, df, input_list):
-        data = df.values[:,1:6].tolist()
-        input_list = [str(x) for x in input_list]
-        if input_list in data:
-             return data.index(input_list)
-        else:
-            return None
 
 
 
@@ -237,39 +239,32 @@ class booth:
         self.spreadsheet = client.open_by_key(self.using_spreadsheet_id)
         self.boothsheet = self.spreadsheet.worksheet('동아리부스')  # 'Sheet1'은 열고자 하는 시트의 이름입니다.
         self.booth_df = data_load(self.boothsheet)
-        self.stusheet = self.spreadsheet.worksheet('부스학생')
-        self.stu_df = data_load(self.stusheet)
 
 
-    def insert_row(self, input_list, last_row, message):
-        bsheet = self.boothsheet
-        bsheet.add_rows(1)
+    def insert_row(self, sheet, input_list, last_row, message):
         validation_rule = DataValidationRule(
             BooleanCondition('BOOLEAN', ['TRUE', 'FALSE']),
             # condition'type' and 'values', defaulting to TRUE/FALSE
             showCustomUi=True)
-        set_data_validation_for_cell_range(bsheet, "A" + str(last_row), validation_rule)  # inserting checkbox
-        bsheet.update_cell(last_row, 2, value="=row()-1")
+        set_data_validation_for_cell_range(sheet, "A" + str(last_row), validation_rule)  # inserting checkbox
+        sheet.update_cell(last_row, 2, value="=row()-1")
 
         input_list.append(get_seoul_time())
-        bsheet.update(range_name="C" + str(last_row), values=[input_list])
+        sheet.update(range_name="C" + str(last_row), values=[input_list])
         st.success(message.format(input_list[3], input_list[4], input_list[5]))
 
     def detect_same_index(self, df, input_list):
         check_data = df[['학교명','팀명']].values.tolist()
         if input_list in check_data:
-             return check_data.index(input_list)
+            return check_data.index(input_list)+2
         else:
             return None
 
     def data_input_booth(self, input_list, start_col="B"):
         bsheet = self.boothsheet
         b_df = self.booth_df
-        last_row = bsheet.row_count + 1
-        input_list.append(get_seoul_time())
 
-
-        del_message = """{0} {1} 동아리의 기존 정보를 삭제하고 새로 입력한 주제 {2} 로 업데이트합니다.  
+        del_message = """{0} {1} 동아리의 기존 정보를 새로 입력한 주제 {2} 로 업데이트합니다.  
             변경이 불가하도록 하시려면 [대구과학고 교사 최재혁]에게 교육청 메신져로 메시지 하시면 됩니다. 
             내용: // {0} 학교 {1} 동아리 정보는 더이상 수정하지 않겠습니다. //  """
         message = "{0} {1} 동아리의 주제 {2}의 정보가 입력되었습니다. 불러오기를 통해 잘 저장되었는지 확인하세요. "
@@ -277,31 +272,35 @@ class booth:
         detect_same_index = self.detect_same_index(b_df, input_list[3:5])
 
         if detect_same_index:
-            index_TF = b_df['승인'].values.tolist()[detect_same_index]
+            index_TF = b_df['승인'].values.tolist()[detect_same_index-2]
             if index_TF == 'TRUE':
                 st.warning("해당 동아리의 정보가 수정불가로 설정되었습니다.")
             else:
-                bsheet.delete_rows(detect_same_index + 2)
-                self.insert_row(input_list, last_row - 1, del_message)
+                self.insert_row(bsheet, input_list, detect_same_index, del_message)
 
         else:
-            self.insert_row(input_list, last_row, message)
+            last_row = bsheet.row_count + 1
+            bsheet.add_rows(1)
+            self.insert_row(bsheet, input_list, last_row, message)
+
+class stu:
+    def __init__(self):
+        self.using_spreadsheet_id = '1DwMKa9x9mHZnKUFgylhgQahEoFaTmfHCr4yeCVNVpT4'
+        self.spreadsheet = client.open_by_key(self.using_spreadsheet_id)
+        self.stusheet = self.spreadsheet.worksheet('부스학생')
+        self.stu_df = data_load(self.stusheet)
 
 
-
-
-    def insert_row_stu(self, input_list, last_row, message):
-        ssheet = self.stusheet
-        ssheet.add_rows(1)
+    def update_row_stu(self, sheet, input_list, row_index, message):
         validation_rule = DataValidationRule(
             BooleanCondition('BOOLEAN', ['TRUE', 'FALSE']),
             # condition'type' and 'values', defaulting to TRUE/FALSE
             showCustomUi=True)
-        set_data_validation_for_cell_range(ssheet, "A" + str(last_row), validation_rule)  # inserting checkbox
-        ssheet.update_cell(last_row, 2, value="=row()-1")
+        set_data_validation_for_cell_range(sheet, "A" + str(row_index), validation_rule)  # inserting checkbox
+        sheet.update_cell(row_index, 2, value="=row()-1")
 
         input_list.append(get_seoul_time())
-        ssheet.update(range_name="C" + str(last_row), values=[input_list])
+        sheet.update(range_name="C" + str(row_index), values=[input_list])
         st.success(message.format(input_list[0], input_list[2], input_list[3], input_list[4], input_list[5]))
 
 
@@ -313,26 +312,25 @@ class booth:
             return None
     def stu_df_input(self, excel_df):
         stusheet = self.stusheet
-        stu_df = self.stu_df
         excel_tolist = excel_df.values.tolist()
-
+        stu_df = self.stu_df
+        last_row = stusheet.row_count
+        del_message = "{0} {1}학년 {2}반 {3}번 {4}학생의 기존정보를 새롭게 저장하였습니다."
+        message = "{0} {1}학년 {2}반 {3}번 {4}학생의 정보가 저장되었습니다."
+        fix_message = "{0} {1}학년 {2}반 {3}번 {4}학생의 정보가 수정불가로 설정되었습니다."
         for input_list in excel_tolist:
-            last_row = stusheet.row_count
-
-            del_message = """{0} {1}학년 {2}반 {3}번 {4}학생의 정보가 기존에 있습니다.  
-             삭제후 다시 저장하였습니다."""
-            message = """{0} {1}학년 {2}반 {3}번 {4}학생의 정보가 저장되었습니다."""
             inputlist = [str(x) for x in input_list[0:6]]
             detect_same_index = self.detect_same_stu_index(stu_df, inputlist)
 
             if detect_same_index is not None:
-                index_TF = stu_df['승인'].values.tolist()[detect_same_index-2]
+                index_TF = stu_df['승인'].values.tolist()[detect_same_index - 2]
                 if index_TF == 'TRUE':
-                    st.warning("해당 동아리의 정보가 수정불가로 설정되었습니다.")
+                    st.warning(fix_message.format(input_list[0], input_list[2], input_list[3], input_list[4], input_list[5]))
                 else:
-                    stusheet.delete_rows(detect_same_index)
-                    self.insert_row_stu(input_list, last_row , del_message)
-
+                    self.update_row_stu(stusheet, input_list, detect_same_index, del_message)
             else:
-                self.insert_row_stu(input_list, last_row+1, message)
+                stusheet.add_rows(1)
+                last_row += 1
+                self.update_row_stu(stusheet, input_list, last_row, message)
+
 
