@@ -67,7 +67,7 @@ def main():
         json_data = json.loads(json.dumps(res.json(), indent=2, ensure_ascii=False))
         st.write(json_data.get("statusMessage"))
     elif len(balgub) != 1:
-        st.warning("검색된 대상이 2명 2상입니다. 검색조건을 상세히 입력하세요.")
+        st.warning("검색된 대상이 2명 이상입니다. 검색조건을 상세히 입력하세요.")
     else:
         st.success("번호를 입력하고 문자보내기 버튼을 누르세요.")
 
