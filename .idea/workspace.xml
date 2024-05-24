@@ -143,15 +143,9 @@
       <workItem from="1716041610795" duration="124000" />
       <workItem from="1716372299620" duration="1614000" />
       <workItem from="1716374437044" duration="2151000" />
-      <workItem from="1716458773967" duration="621000" />
-    </task>
-    <task id="LOCAL-00011" summary="2024_dsf_신청(초안_0429)">
-      <option name="closed" value="true" />
-      <created>1714311468490</created>
-      <option name="number" value="00011" />
-      <option name="presentableId" value="LOCAL-00011" />
-      <option name="project" value="LOCAL" />
-      <updated>1714311468490</updated>
+      <workItem from="1716458773967" duration="1418000" />
+      <workItem from="1716475365766" duration="2376000" />
+      <workItem from="1716507675585" duration="6309000" />
     </task>
     <task id="LOCAL-00012" summary="2024_dsf_신청(초안_0429)">
       <option name="closed" value="true" />
@@ -537,7 +531,15 @@
       <option name="project" value="LOCAL" />
       <updated>1716376567549</updated>
     </task>
-    <option name="localTasksCounter" value="60" />
+    <task id="LOCAL-00060" summary="fileupload_data_2024_0523">
+      <option name="closed" value="true" />
+      <created>1716461627692</created>
+      <option name="number" value="00060" />
+      <option name="presentableId" value="LOCAL-00060" />
+      <option name="project" value="LOCAL" />
+      <updated>1716461627693</updated>
+    </task>
+    <option name="localTasksCounter" value="61" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -566,7 +568,8 @@
     <MESSAGE value="change_to_class_2024_0510" />
     <MESSAGE value="fileupload_data_2024_0512" />
     <MESSAGE value="fileupload_data_2024_0527" />
-    <option name="LAST_COMMIT_MESSAGE" value="fileupload_data_2024_0527" />
+    <MESSAGE value="fileupload_data_2024_0523" />
+    <option name="LAST_COMMIT_MESSAGE" value="fileupload_data_2024_0523" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
   <component name="XDebuggerManager">
