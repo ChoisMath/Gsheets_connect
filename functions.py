@@ -142,7 +142,7 @@ class chehum:
 
 
     def serial_input_chehum(self):
-        chehumdata = self.chehum_df()
+        chehumdata = data_load(self.chehumsheet)
         serials = chehumdata['일련번호'].tolist()
         max_serial = max(serials)
         approved_data = chehumdata[chehumdata['승인']=="TRUE"]
