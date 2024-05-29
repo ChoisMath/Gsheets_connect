@@ -145,11 +145,10 @@ class chehum:
         chehumdata = self.chehum_df()
         serials = chehumdata['일련번호'].tolist()
         max_serial = max(serials)
-        st.write(max_serial)
         approved_data = chehumdata[chehumdata['승인']=="TRUE"]
         insert_index = approved_data[approved_data['일련번호'] == ''].index
         for i in range(len(insert_index)):
-            self.chehumsheet.update(range_name="I" + str(insert_index[i] + 1), values=[[str(int(max_serial) + i + 1)]])
+            self.chehumsheet.update(range_name="I" + str(insert_index[i] + 1), values=[[int(max_serial) + i + 1]])
 
 
 
