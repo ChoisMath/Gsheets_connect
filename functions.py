@@ -145,6 +145,7 @@ class chehum:
         chehumdata = self.chehum_df()
         serials = chehumdata['일련번호'].tolist()
         max_serial = max(serials)
+        st.write(max_serial)
         approved_data = chehumdata[chehumdata['승인']=="TRUE"]
         insert_index = approved_data[approved_data['일련번호'] == ''].index
         for i in range(len(insert_index)):
