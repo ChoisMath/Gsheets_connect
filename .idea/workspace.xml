@@ -160,23 +160,7 @@
       <workItem from="1716855170828" duration="1074000" />
       <workItem from="1716860397021" duration="86000" />
       <workItem from="1716861643386" duration="1737000" />
-      <workItem from="1716971526044" duration="1239000" />
-    </task>
-    <task id="LOCAL-00018" summary="2024_dsf_신청(초안_0429)">
-      <option name="closed" value="true" />
-      <created>1714325802560</created>
-      <option name="number" value="00018" />
-      <option name="presentableId" value="LOCAL-00018" />
-      <option name="project" value="LOCAL" />
-      <updated>1714325802561</updated>
-    </task>
-    <task id="LOCAL-00019" summary="2024_dsf_신청(초안_0429)">
-      <option name="closed" value="true" />
-      <created>1714464200304</created>
-      <option name="number" value="00019" />
-      <option name="presentableId" value="LOCAL-00019" />
-      <option name="project" value="LOCAL" />
-      <updated>1714464200304</updated>
+      <workItem from="1716971526044" duration="1634000" />
     </task>
     <task id="LOCAL-00020" summary="2024_dsf_신청(초안_0429)">
       <option name="closed" value="true" />
@@ -554,7 +538,23 @@
       <option name="project" value="LOCAL" />
       <updated>1716973039436</updated>
     </task>
-    <option name="localTasksCounter" value="67" />
+    <task id="LOCAL-00067" summary="fileupload_data_2024_0524">
+      <option name="closed" value="true" />
+      <created>1716973121277</created>
+      <option name="number" value="00067" />
+      <option name="presentableId" value="LOCAL-00067" />
+      <option name="project" value="LOCAL" />
+      <updated>1716973121277</updated>
+    </task>
+    <task id="LOCAL-00068" summary="fileupload_data_2024_0524">
+      <option name="closed" value="true" />
+      <created>1716973197890</created>
+      <option name="number" value="00068" />
+      <option name="presentableId" value="LOCAL-00068" />
+      <option name="project" value="LOCAL" />
+      <updated>1716973197890</updated>
+    </task>
+    <option name="localTasksCounter" value="69" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -603,7 +603,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/functions.py</url>
-          <line>295</line>
+          <line>294</line>
           <option name="timeStamp" value="4" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
