@@ -22,7 +22,6 @@ credental_json = {
     "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/chois-python-connect%40chois-python-connect.iam.gserviceaccount.com",
 }
 
-# Set up the connection to Google Sheets
 # Google Sheets 및 Drive 서비스 설정
 scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
 credentials = service_account.Credentials.from_service_account_info(credental_json, scopes=scope)

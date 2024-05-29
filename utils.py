@@ -106,3 +106,14 @@ def save_files():
 #     text_file = open("mycreds_test.txt", "w")
 #     n = text_file.write(cred_str)
 #     text_file.close()
+
+# 발송, 스프레스시트 data를 통해
+
+import pandas as pd
+from functions import client
+
+using_spreadsheet_id = '1Mi3NQMV_mlZMcgV74O4ZAAy_Xc6wN_cHD8aVs2OCMoM'
+spreadsheet = client.open_by_key(using_spreadsheet_id)
+sheet = spreadsheet.worksheet('정정')
+data = sheet.get_values()
+unpibot = pd.DataFrame(data[1:], columns = data[0])
